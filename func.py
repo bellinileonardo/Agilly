@@ -892,38 +892,32 @@ def visualiza_config_geral_func(session_db2):
 def visualiza_config_papel_func(session_db2):
 
     try:
-        visualiza_config_papel = text(
-            f"""select pp.id as id_papel, pp.nome as nome_operacao, u.nomereduzido as nome_user, u.id ,u.login, u.senha , o.nome_reduzido ,o.imprimir,o.asciioperacao, o.visivel_usuario from papeloperacao p
-            inner join operacao o on p.idoperacao = o.id
-            inner join papel pp on pp.id = p.idpapel
-            inner join papelusuario p2 on pp.id = p.idpapel
-            inner join usuario u on p2.idusuario = u.id ;"""
-        )
-        vizu_config_papel = session_db2.execute(
-            visualiza_config_papel).fetchall()
-        vizu_config_papel = pd.DataFrame(vizu_config_papel)
-
+        
         col100, col200 = st.columns(2)
         with col100:
-            vizu_papel_nome_usuario = vizu_config_papel["nome_user"].unique(
+            sltc_nome_papel = text("""
+                                select id,nome from papel
+                                """)
+            sltc_nome_papel_df = session_db2.execute(sltc_nome_papel).fetchall()
+            sltc_nome_papel_df = pd.DataFrame(sltc_nome_papel_df)
+    
+            sltc_nome_papel_select = st.selectbox("Selecione", sltc_nome_papel_df['nome'])
+            
+            visualiza_config_papel = text(
+                f"""select o.nome_reduzido from papel p
+                    inner join papeloperacao po 
+                    on p.id = po.idpapel 
+                    inner join operacao o 
+                    on po.idoperacao = o.id 
+                    where p.nome = '{sltc_nome_papel_select}'
+                    order by o.nome asc"""
             )
-            selectbox_nome_usuario_papel = st.selectbox(
-                "Selecione o Usuario", vizu_papel_nome_usuario)
-            vizu_papel_nome_usuario_df = vizu_config_papel[vizu_config_papel['nome_user']
-                                                           == selectbox_nome_usuario_papel]
-
+            vizu_config_papel = session_db2.execute(
+                visualiza_config_papel).fetchall()
+            vizu_config_papel = pd.DataFrame(vizu_config_papel)
+            
         with col200:
-            vizu_papel_nome_operacao = vizu_papel_nome_usuario_df['nome_operacao'].unique(
-            )
-            selectbox_nome_operacao_papel = st.selectbox(
-                "Selecione a Operacao", vizu_papel_nome_operacao)
-            vizu_papel_nome_operacao_df = vizu_papel_nome_usuario_df[
-                vizu_papel_nome_usuario_df["nome_operacao"] == selectbox_nome_operacao_papel]
-            vizu_papel_nome_operacao_df['valor'] = vizu_papel_nome_operacao_df['valor'].replace({
-                                                                                                True: 'Ativado'})
-
-        st.dataframe(vizu_papel_nome_operacao_df,
-                     use_container_width=True, hide_index=True)
+            st.dataframe(vizu_config_papel, hide_index=True)       
 
     except Exception as e:
         if "does not exist" in str(e):
@@ -1026,13 +1020,13 @@ def visualiza_mot_devolucao_func(session_db2):
 
     try:
         visualiza_motiv_devolucao = text(
-            f"""select md.id, md.descricao from motivo_devolucao md;"""
+            f"""select * from motivo_devolucao md;"""
         )
         vizu_motivo_devolucao = session_db2.execute(
             visualiza_motiv_devolucao).fetchall()
         vizu_motivo_devolucao = pd.DataFrame(vizu_motivo_devolucao)
         st.dataframe(vizu_motivo_devolucao,
-                     use_container_width=True, hide_index=True)
+                     use_container_width=True)
 
     except Exception as e:
         if "does not exist" in str(e):

@@ -37,7 +37,7 @@ def login():
     }
 
     [data-testid="stAppViewContainer"]{
-        background-image: url("http://127.0.0.1/agillity/img/fundo_tela.jpg");
+        background-image: url("http://172.27.3.197/agillity/img/fundo_tela.jpg");
         background-color: #fff;
         background-size: cover;
         background-repeat: no-repeat;
@@ -90,7 +90,7 @@ def pagina_protegida():
 
     [data-testid="stAppViewContainer"]{
         
-        background-color: rgb(209, 210, 211);
+        background-color: #fff;
         background-size: cover;
         background-repeat: no-repeat;
     }
@@ -145,7 +145,8 @@ def pagina_protegida():
             else:
                 st.html(
                     f"<div style='text-align:center; background: red; color: white; font-size: 15px;'>CONFIGURE A CONEXÃO DE DADOS ANTES DE INICIAR</div>")
-
+        with st.expander(" :three: Documentação"):
+            pass
         # BOTOES PARA IMPORTAÇÃO DE DADOS
         with st.expander(" :two: Opções de Importação"):
             if numero_ip_alvo != "":
@@ -156,7 +157,7 @@ def pagina_protegida():
             else:
                 st.html(
                     f"<div style='text-align:center; background: red; color: white; font-size: 10px;'></div>")
-    # BOTOES PARA VISUALIZAÇÃO DE DADOS
+        # BOTOES PARA VISUALIZAÇÃO DE DADOS
         with st.expander(" :three: Visualiza Importação"):
             if numero_ip_alvo != "":
                 vizu_motv_devolucao_btn = st.checkbox(
@@ -183,7 +184,13 @@ def pagina_protegida():
             else:
                 st.html(
                     f"<div style='text-align:center; background: red; color: white; font-size: 10px;'></div>")
-        # Engine de conexão com os bancos de dados
+        # Documentação para Implantação
+        with st.expander(" :four: Documentação"):
+            if numero_ip_alvo != "":
+                vizu_motv_devolucao_btn = st.checkbox(
+                    "Motivo Devolução", key="vizu_mot_devolucao2")
+        st.divider()
+    # Engine de conexão com os bancos de dados
     with st.container(border=True):
         try:
             db1_url = f'postgresql+psycopg2://{nome_usuario_banco}:{
@@ -397,7 +404,18 @@ def pagina_protegida():
                 st.text("O Agilly é um sistema web para abrir novas lojas no Mercadologic.\nImagine que você está montando uma nova filial para o cliente e precisa\nconfigurar tudo do zero. Com o Agilly, é como se você efetuasse um clone\nda loja principal! Com apenas alguns cliques, o Agilly copia todas as\ninformações importantes da sua loja principal para a nova, como Configurações,\nPerfis, Formas de pagamento e muito mais.\nIsso significa que você não precisa mais digitar tudo de novo, economizando\ntempo e evitando erros.")
         with colsid03:
             pass
-    colrodp01, colrodp02, colrodp03 = st.columns([12, 1, 12])
+
+    colbody01, colbody02, colbody03, colbody04 = st.columns(4)
+    with colbody01:
+        st.write("")
+    with colbody02:
+        st.write("")
+    with colbody03:
+        st.write("")
+    with colbody04:
+        st.write("")
+
+    colrodp01, colrodp02, colrodp03 = st.columns([6, 1, 6])
     with colrodp01:
         st.write("---")
     with colrodp02:
