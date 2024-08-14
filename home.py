@@ -101,7 +101,6 @@ def pagina_protegida():
     }
     </style>
     """
-
     st.markdown(page_home, unsafe_allow_html=True)
     # Configuração de Bancos para copia
 
@@ -227,6 +226,12 @@ def pagina_protegida():
             else:
                 print(f"Detalhes do erro: {e}")
 
+    if numero_ip_alvo == '':
+        st.html(
+                f"<div style='text-align:center; font-size: 15px;'>O Agilly é um sistema web para abrir novas lojas e filiais no Mercadologic.\nImagine que você está montando uma nova filial para o cliente e precisa\nconfigurar tudo do zero. Com o Agilly, é como se você efetuasse um clone\nda loja principal! Com apenas alguns cliques, o Agilly copia todas as\ninformações importantes da sua loja principal para a nova, como Configurações,\nPerfis, Formas de pagamento e muito mais.\nIsso significa que você não precisa mais digitar tudo de novo, economizando\ntempo e evitando erros.</div>")
+
+
+    
     def funcoes_copia_parametros(session_db1, session_db2, engine_db1, engine_db2):
         with st.container(border=False):
             st.html(
@@ -256,6 +261,11 @@ def pagina_protegida():
                         # Executar a função de transferência de dados
                         fct.Motivo_de_Suprimento(
                             session_db1, session_db2, engine_db1, engine_db2)
+                with st.status("Modalidade Frete", state="error", expanded=False) as status_mod_frete:
+                    if st.button("Executar Copia", key="copia_modalidade_frete",):
+                        # Executar a função de transferência de dados
+                        fct.modalidade_frete(
+                            session_db1, session_db2, engine_db1, engine_db2)        
 
             with col02:
                 with st.status("Motivo de Sangria", state="error", expanded=False) as status_motiv_sangria:
@@ -317,21 +327,32 @@ def pagina_protegida():
             col05, col06, col07 = st.columns(3)
             with col05:
                 # with st.status("Aplica Novo IP", state="error", expanded=False) as status_motiv_devol:
-                with st.status("Novo IP", state="error", expanded=False) as status_ip:
+                with st.status("Geral: Novo IP", state="error", expanded=False) as status_ip:
                     novo_ip_limpo = st.text_input(
                         "Digite o IP da nova loja.", help="IP do concentrador", placeholder="192.168.1.228")
                     novo_ip = "\\\\" + novo_ip_limpo
                     if st.button("Aplicar IP"):
                         fct.aplica_novo_ip(session_db2, engine_db2,
                                            novo_ip, novo_ip_limpo)
+       
+                with st.status("Frete: Compõe base ICMS"):
+                    ativa_base_icms = st.button("Ativar", key="ativa_base_frete_icms", help=None, type="secondary", disabled=False, use_container_width=False)
+                    if ativa_base_icms == True:
+                            fct.ativa_frete_base_icms(session_db2, engine_db2)
+                            st.write("Ativado com sucesso")                                
             with col06:
-                with st.status("Nova ID", state="error", expanded=False) as status_id:
+                with st.status("Empresa: Nova ID", state="error", expanded=False) as status_id:
                     nova_id = st.text_input(
                         "Digite a ID da nova loja", help="ID referente a loja no Director", placeholder="2")
                     if st.button("Aplicar ID"):
                         fct.aplica_nova_id(session_db2, engine_db2, nova_id)
+       
+                with st.status("Frete: Compõe base PIS/COFINS"):
+                    ativa_base_pis_cofins = st.button("Ativar", key="ativa_base_frete_piscofins", help=None, type="secondary", disabled=False, use_container_width=False)
+                    if ativa_base_pis_cofins == True:
+                        fct.ativa_frete_base_piscofins(session_db2, engine_db2)
             with col07:
-                with st.status("Codigo CSC", state="error", expanded=False) as status_id:
+                with st.status("Perfil: Codigo CSC", state="error", expanded=False) as status_id:
                     csc_cliente = st.text_input(
                         "Digite o codigo CSC", help="Aplica o codigo CSC enviado pela contabilidade", placeholder="760F6400-C202-40FC-AE4E-A16CD0B918D8")
                     if st.button("Aplicar CSC"):

@@ -158,6 +158,62 @@ def Formas_de_Pagamento(session_db1, session_db2, engine_db1, engine_db2):
             st.write(f"Detalhes do erro: {e}")
         session_db2.rollback()
 
+def modalidade_frete(session_db1, session_db2, engine_db1, engine_db2):
+    try:
+        query_modalidade_frete = text("select * from modalidade_frete mf")
+        resultado_query_modalidade_frete = session_db1.execute(
+            query_modalidade_frete).fetchall()
+
+        ################################
+        for row_modalidade_frete in resultado_query_modalidade_frete:
+            insert_query_modalidade_frete = text(
+                """INSERT INTO public.modalidade_frete
+                        (id, descricao, codigo_modalidade, permite_desconto_frete, compoe_base_icms, compoe_base_pis_cofins, desativado, modificado)
+                    VALUES
+                        (:id, :descricao, :codigo_modalidade, :permite_desconto_frete, :compoe_base_icms, :compoe_base_pis_cofins, :desativado, :modificado)
+                    ON CONFLICT (id)
+                    DO UPDATE SET
+                        descricao = EXCLUDED.descricao,
+                        codigo_modalidade = EXCLUDED.codigo_modalidade,
+                        permite_desconto_frete = EXCLUDED.permite_desconto_frete,
+                        compoe_base_icms = EXCLUDED.compoe_base_icms,
+                        compoe_base_pis_cofins = EXCLUDED.compoe_base_pis_cofins,
+                        desativado = EXCLUDED.desativado;  
+                        """
+            )
+            params_modalidade_frete = {
+                'id': row_modalidade_frete[0] or 1,
+                'descricao': row_modalidade_frete[1] or "SEM FRETE",
+                'codigo_modalidade': row_modalidade_frete[2] or 0,
+                'permite_desconto_frete': row_modalidade_frete[3] or False,
+                'compoe_base_icms': row_modalidade_frete[4] or False,
+                'compoe_base_pis_cofins': row_modalidade_frete[5] or False,
+                'desativado': row_modalidade_frete[6],
+                'modificado': row_modalidade_frete[7] or True
+            }
+            session_db2.execute(insert_query_modalidade_frete, params_modalidade_frete)
+        ################################
+        # Confirmar transações
+        session_db2.commit()
+        # Fechar as sessões
+        session_db1.close()
+        session_db2.close()
+        # Fechar os engines
+        engine_db1.dispose()
+        engine_db2.dispose()
+        st.write("Copia Efetuada com Sucesso")
+    except Exception as e:
+        if "does not exist" in str(e):
+            st.write("Erro: O banco de dados especificado não existe.")
+        elif "authentication failed" in str(e):
+            st.write(
+                "Erro: Falha na autenticação. Por favor, verifique o nome de usuário e senha.")
+        elif "utf-8" in str(e):
+            st.write("Erro: IP com erro, verifique o ip digitado.")
+        else:
+            st.write(f"Detalhes do erro: {e}")
+        session_db2.rollback()
+
 
 def Motivo_de_Desconto(session_db1, session_db2, engine_db1, engine_db2):
     try:
@@ -856,6 +912,72 @@ def aplica_csc_cliente(session_db2, engine_db2, csc_cliente):
         else:
             st.write(f"Detalhes do erro: {e}")
         session_db2.rollback()
+
+def ativa_frete_base_icms(session_db2, engine_db2):
+    try:
+        ################################
+        ativa_frete_base_icms_sql = text(
+            f"""UPDATE public.modalidade_frete SET compoe_base_icms=true;
+                            """
+        )
+        session_db2.execute(
+            ativa_frete_base_icms_sql)
+
+        # Confirmar transações
+        session_db2.commit()
+
+        # Fechar as sessões
+        session_db2.close()
+        
+        # Fechar os engines
+        engine_db2.dispose()
+        
+        st.write("Compõe base de calculo ICMS ativado com sucesso")
+    except Exception as e:
+        if "does not exist" in str(e):
+            st.write("Erro: O banco de dados especificado não existe.")
+        elif "authentication failed" in str(e):
+            st.write(
+                "Erro: Falha na autenticação. Por favor, verifique o nome de usuário e senha.")
+        elif "utf-8" in str(e):
+            st.write("Erro: IP com erro, verifique o ip digitado.")
+        else:
+            st.write(f"Detalhes do erro: {e}")
+        session_db2.rollback()
+
+def ativa_frete_base_piscofins(session_db2, engine_db2):
+    try:
+        ################################
+        ativa_frete_base_piscofins_sql = text(
+            f"""UPDATE public.modalidade_frete SET compoe_base_pis_cofins=true;
+                            """
+        )
+        session_db2.execute(
+            ativa_frete_base_piscofins_sql)
+
+        # Confirmar transações
+        session_db2.commit()
+
+        # Fechar as sessões
+        session_db2.close()
+        
+        # Fechar os engines
+        engine_db2.dispose()
+        
+        st.write("Compõe base de calculo PIS/COFINS ativado com sucesso")
+    except Exception as e:
+        if "does not exist" in str(e):
+            st.write("Erro: O banco de dados especificado não existe.")
+        elif "authentication failed" in str(e):
+            st.write(
+                "Erro: Falha na autenticação. Por favor, verifique o nome de usuário e senha.")
+        elif "utf-8" in str(e):
+            st.write("Erro: IP com erro, verifique o ip digitado.")
+        else:
+            st.write(f"Detalhes do erro: {e}")
+        session_db2.rollback()
+
+
 
 ####################### FUNÇOES DE ATUALIZAÇAO DE DADOS IMPORTADOS #####################
 
