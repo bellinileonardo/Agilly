@@ -1,5 +1,7 @@
 ﻿import streamlit as st
 import pandas as pd
+import streamlit_shadcn_ui as ui
+import streamlit_antd_components as sac
 from sqlalchemy.sql import text
 
 ############################ Funções de Inserção e Copia de dados #########################
@@ -1120,8 +1122,11 @@ def visualiza_mot_desc_func(session_db2):
         vizu_motivo_desc = session_db2.execute(
             visualiza_motiv_desc).fetchall()
         vizu_motivo_desc = pd.DataFrame(vizu_motivo_desc)
-        st.dataframe(vizu_motivo_desc,
-                     use_container_width=True, hide_index=True)
+        for motiv in vizu_motivo_desc['descricao']:
+            ui.badges(badge_list=[(motiv, "default")], class_name="px-0.5", key=f"{motiv[0:3]}")
+
+        
+        #st.dataframe(vizu_motivo_desc, use_container_width=True, hide_index=True)
 
     except Exception as e:
         if "does not exist" in str(e):
@@ -1249,13 +1254,14 @@ def visualiza_forms_pag_func(session_db2):
 
     try:
         visualiza_forms_pag = text(
-            f"""select f.id,f.nome as tipo,f.forma_pagamento_sefaz as sefaz,o.nome as operacao , f.exibir_pdv,f.id_forma_pai as Menu_Pai, f.integra_tef from formapagamento f
+            f"""select f.id,f.nome as tipo,f.forma_pagamento_sefaz as sefaz,o.nome as operacao from formapagamento f
         inner join operacao o on f.id_operacao = o.id order by f.id asc;"""
         )
-        formas_importadas = session_db2.execute(visualiza_forms_pag).fetchall()
-        formas_importadas = pd.DataFrame(formas_importadas)
-        st.dataframe(formas_importadas,
-                     use_container_width=True, hide_index=True)
+        vizu_formas_pag_import = session_db2.execute(visualiza_forms_pag).fetchall()
+        vizu_formas_pag_import = pd.DataFrame(vizu_formas_pag_import)
+        #vizu_formas_pag_import = vizu_formas_pag_import.values
+        ui.table(data=vizu_formas_pag_import)
+        
 
     except Exception as e:
         if "does not exist" in str(e):
@@ -1342,3 +1348,37 @@ def visualiza_prop_geral_func(session_db2):
     finally:
         # Fechar a sessão DB2
         session_db2.close()
+
+
+################################ Conexão de entre bancos #################################
+
+def conecta_bancos():
+        col1, col2 = st.columns(2)
+        with st.container(border=True):
+
+            with col1:
+                st.write("Banco Fonte:")
+                numero_ip_alvo = st.text_input(
+                    f"Digite o IP da loja alvo ", key="numero_ip_alvo_form", placeholder="192.168.1.248")
+                nome_banco_dados_alvo = st.text_input(
+                    "Digite o nome do banco de dados da loja alvo", key="nome_banco_dados_alvo_form", placeholder="DBMercadologic")
+                nome_usuario_banco = st.text_input(
+                    "Digite usuario de acesso ao Postgresql", key="nome_user_bd_form", placeholder="postgres")
+
+            with col2:
+                st.write("Banco Destino:")
+                numero_ip_destino = st.text_input(
+                    "Digite o IP da loja nova", key="numero_ip_destino_form", placeholder="192.168.1.249")
+                nome_banco_dados_destino = st.text_input(
+                    "Digite o nome do banco de dados da loja nova", key="nome_banco_dados_destino_form", placeholder="DBMercadologic")
+                senha_usuario_banco = st.text_input(
+                    "Digite a senha de acesso ao Postgresql", type="password", key="input_senha_banco_form")
+
+            return {
+                    "ip_alvo": numero_ip_alvo,
+                    "ip_destino": numero_ip_destino,
+                    "nome_banco_alvo": nome_banco_dados_alvo,
+                    "nome_banco_destino": nome_banco_dados_destino,
+                    "nome_usuario_banco": nome_usuario_banco,
+                    "senha_banco": senha_usuario_banco
+                }

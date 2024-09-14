@@ -2,9 +2,14 @@
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 import streamlit as st
+import streamlit_shadcn_ui as ui
+import streamlit_antd_components as sac
+from streamlit_extras.stateful_button import button
+
 
 st.set_page_config(page_title="Agily - Implantação Express ", page_icon=":dizzy:",
                    layout="wide", initial_sidebar_state="expanded", menu_items=None)
+
 
 
 perfis_pdv = ["NFCE01", "NFCE02", "NFCE03", "NFCE04", "NFCE05"]
@@ -30,19 +35,17 @@ def login():
         color: white;
         font-size: 28px;
     }
-
+    
     [data-testid="stHeader"]{
-    background-color: rgb(255, 255, 255, 0.2);
-    color: white;
-    }
+        background-color: rgb(255,255,255, 0.2);
 
+    }
+    
     [data-testid="stAppViewContainer"]{
-        background-image: url("http://172.27.3.197/agillity/img/fundo_tela.jpg");
-        background-color: #fff;
-        background-size: cover;
-        background-repeat: no-repeat;
+        
+        background-color: #15005b;
     }
-
+    
     [data-testid="stVerticalBlockBorderWrapper"]{
     background-color: transparent;
 
@@ -67,18 +70,21 @@ def login():
     with collogo02:
 
         username = st.text_input("Nome de usuário")
-        senha = st.text_input("Senha", type="password")
+        senha = st.text_input("Senha", type="password")       
 
         if st.button("Login", type='primary'):
             if username in credenciais and credenciais[username] == senha:
                 return True
             else:
                 st.error("Credenciais inválidas. Tente novamente.")
+       
     with collogo03:
         pass
 
 
+
 def pagina_protegida():
+    
     page_home = """
     <style>
 
@@ -103,49 +109,39 @@ def pagina_protegida():
     """
     st.markdown(page_home, unsafe_allow_html=True)
     # Configuração de Bancos para copia
-
-    with st.sidebar.popover(f" :one: Configuração", use_container_width=True):
-        col1, col2 = st.columns(2)
-        with st.container(border=True):
-
-            with col1:
-                st.write("Banco Fonte:")
-                numero_ip_alvo = st.text_input(
-                    f"Digite o IP da loja alvo ", key="numero_ip_alvo", placeholder="192.168.1.248")
-                nome_banco_dados_alvo = st.text_input(
-                    "Digite o nome do banco de dados da loja alvo", key="nome_banco_dados_alvo", placeholder="DBMercadologic")
-                nome_usuario_banco = st.text_input(
-                    "Digite usuario de acesso ao Postgresql", key="nome_user_bd", placeholder="postgres")
-
-            with col2:
-                st.write("Banco Destino:")
-                numero_ip_destino = st.text_input(
-                    "Digite o IP da loja nova", key="numero_ip_destino", placeholder="192.168.1.249")
-                nome_banco_dados_destino = st.text_input(
-                    "Digite o nome do banco de dados da loja nova", key="nome_banco_dados_destino", placeholder="DBMercadologic")
-                senha_usuario_banco = st.text_input(
-                    "Digite a senha de acesso ao Postgresql", type="password", key="input_senha_banco")
-            salvar_dados_config = st.button(
-                "Salvar Dados de Conexão", type="primary", use_container_width=True)
-
-            with st.container(border=True):
-                if salvar_dados_config:
-                    pass
-    st.sidebar.caption(" Siga as passos :one:, :two: e :three: ")
+    
     with st.sidebar:
-        with st.expander("Status da Conexão", expanded=True):
-            if numero_ip_alvo != "":
-                st.markdown(f":white_check_mark: {numero_ip_alvo} \n :floppy_disk: {
-                            nome_banco_dados_alvo}")
-                st.markdown(f" ")
-                st.markdown(f":twisted_rightwards_arrows: {
-                            numero_ip_destino} \n :floppy_disk: {nome_banco_dados_destino}")
+              
+        with st.popover(f" :one: Configuração", use_container_width=True):
+            col1, col2 = st.columns(2)
+            with st.container(border=True):
 
-            else:
-                st.html(
-                    f"<div style='text-align:center; background: red; color: white; font-size: 15px;'>CONFIGURE A CONEXÃO DE DADOS ANTES DE INICIAR</div>")
-        with st.expander(" :three: Documentação"):
-            pass
+                with col1:
+                    st.write("Banco Fonte:")
+                    numero_ip_alvo = st.text_input(
+                        f"Digite o IP da loja alvo ", key="numero_ip_alvo", placeholder="192.168.1.248")
+                    nome_banco_dados_alvo = st.text_input(
+                        "Digite o nome do banco de dados da loja alvo", key="nome_banco_dados_alvo", placeholder="DBMercadologic")
+                    nome_usuario_banco = st.text_input(
+                        "Digite usuario de acesso ao Postgresql", key="nome_user_bd", placeholder="postgres")
+
+                with col2:
+                    st.write("Banco Destino:")
+                    numero_ip_destino = st.text_input(
+                        "Digite o IP da loja nova", key="numero_ip_destino", placeholder="192.168.1.249")
+                    nome_banco_dados_destino = st.text_input(
+                        "Digite o nome do banco de dados da loja nova", key="nome_banco_dados_destino", placeholder="DBMercadologic")
+                    senha_usuario_banco = st.text_input(
+                        "Digite a senha de acesso ao Postgresql", type="password", key="input_senha_banco")
+                salvar_dados_config = st.button(
+                    "Salvar Dados de Conexão", type="primary", use_container_width=True)
+
+                with st.container(border=True):
+                    if salvar_dados_config:
+                        pass
+        st.caption(" Siga as passos :one:, :two: e :three: ")
+  
+       
         # BOTOES PARA IMPORTAÇÃO DE DADOS
         with st.expander(" :two: Opções de Importação"):
             if numero_ip_alvo != "":
@@ -159,26 +155,26 @@ def pagina_protegida():
         # BOTOES PARA VISUALIZAÇÃO DE DADOS
         with st.expander(" :three: Visualiza Importação"):
             if numero_ip_alvo != "":
-                vizu_motv_devolucao_btn = st.checkbox(
-                    "Motivo Devolução", key="vizu_mot_devolucao")
-                vizu_motv_desconto_btn = st.checkbox(
-                    "Motivo Desconto", key="vizu_mot_desconto")
-                vizu_motv_cancelamento_btn = st.checkbox(
-                    "Motivo Cancelamento", key="vizu_mot_cancelamento")
-                vizu_motv_suprimento_btn = st.checkbox(
-                    "Motivo Suprimento", key="vizu_mot_suprimento")
-                vizu_motv_sangria_btn = st.checkbox(
-                    "Motivo Sangria", key="vizu_mot_sangria")
-                vizu_config_geral_btn = st.checkbox(
-                    "Config. Geral", key="vizu_config_geral")
-                vizu_config_papel_btn = st.checkbox(
-                    "Papel", key="vizu_config_papel")
-                vizu_config_papel_central_btn = st.checkbox(
-                    "Papel Central", key="vizu_config_papel_central")
-                vizu_propriedade_perfil_btn = st.checkbox(
-                    "Config. Perfil ", key="vizu_propried_perfil")
-                vizu_formas_pagamento_btn = st.checkbox(
-                    "F. Pagamento", key="verifica_formas_pagamento")
+                vizu_motv_devolucao_btn = button(
+                    "Motivo Devolução", key="vizu_mot_devolucao", use_container_width=True)
+                vizu_motv_desconto_btn = button(
+                    "Motivo Desconto", key="vizu_mot_desconto", use_container_width=True)
+                vizu_motv_cancelamento_btn = button(
+                    "Motivo Cancelamento", key="vizu_mot_cancelamento", use_container_width=True)
+                vizu_motv_suprimento_btn = button(
+                    "Motivo Suprimento", key="vizu_mot_suprimento", use_container_width=True)
+                vizu_motv_sangria_btn = button(
+                    "Motivo Sangria", key="vizu_mot_sangria", use_container_width=True)
+                vizu_config_geral_btn = button(
+                    "Config. Geral", key="vizu_config_geral", use_container_width=True)
+                vizu_config_papel_btn = button(
+                    "Papel", key="vizu_config_papel", use_container_width=True)
+                vizu_config_papel_central_btn = button(
+                    "Papel Central", key="vizu_config_papel_central", use_container_width=True)
+                vizu_propriedade_perfil_btn = button(
+                    "Config. Perfil ", key="vizu_propried_perfil", use_container_width=True)
+                vizu_formas_pagamento_btn = button(
+                    "F. Pagamento", key="verifica_formas_pagamento", use_container_width=True)
 
             else:
                 st.html(
@@ -189,6 +185,9 @@ def pagina_protegida():
                 vizu_motv_devolucao_btn = st.checkbox(
                     "Motivo Devolução", key="vizu_mot_devolucao2")
         st.divider()
+    
+        
+    
     # Engine de conexão com os bancos de dados
     with st.container(border=True):
         try:
@@ -225,11 +224,24 @@ def pagina_protegida():
                     "Erro: Falha na autenticação. Por favor, verifique o nome de usuário e senha.")
             else:
                 print(f"Detalhes do erro: {e}")
-
-    if numero_ip_alvo == '':
-        st.html(
-                f"<div style='text-align:center; font-size: 15px;'>O Agilly é um sistema web para abrir novas lojas e filiais no Mercadologic.\nImagine que você está montando uma nova filial para o cliente e precisa\nconfigurar tudo do zero. Com o Agilly, é como se você efetuasse um clone\nda loja principal! Com apenas alguns cliques, o Agilly copia todas as\ninformações importantes da sua loja principal para a nova, como Configurações,\nPerfis, Formas de pagamento e muito mais.\nIsso significa que você não precisa mais digitar tudo de novo, economizando\ntempo e evitando erros.</div>")
-
+    
+    
+    colrodp01, colrodp02, colrodp03 = st.columns([6, 2, 6])
+    with colrodp01:
+                pass
+    with colrodp02:
+                #st_lottie("https://lottie.host/826de29f-27c0-409c-ad6a-2bf9cee23b5b/2Vc0Um7VJ1.json", width=80)
+                # st.write("Implantação de Lojas Mercadologic")
+                pass
+    with colrodp03:
+                pass
+    with st.container():        
+        if numero_ip_alvo == '':
+                
+                st.html(
+                    f"<div style='text-align:center; font-size: 15px;'>O Agilly é um sistema web para abrir novas lojas e filiais no Mercadologic.\nImagine que você está montando uma nova filial para o cliente e precisa\nconfigurar tudo do zero. Com o Agilly, é como se você efetuasse um clone\nda loja principal! Com apenas alguns cliques, o Agilly copia todas as\ninformações importantes da sua loja principal para a nova, como Configurações,\nPerfis, Formas de pagamento e muito mais.\nIsso significa que você não precisa mais digitar tudo de novo, economizando\ntempo e evitando erros.</div>")
+        else:
+            pass
 
     
     def funcoes_copia_parametros(session_db1, session_db2, engine_db1, engine_db2):
@@ -361,6 +373,7 @@ def pagina_protegida():
 
     with st.container():
         if numero_ip_alvo != "":
+            
             with st.container():
                 # Funções de Importação e Inserção de Dados
                 if botao_opcoes_copia == True:
@@ -436,15 +449,24 @@ def pagina_protegida():
     with colbody04:
         st.write("")
 
-    colrodp01, colrodp02, colrodp03 = st.columns([6, 1, 6])
-    with colrodp01:
-        st.write("---")
-    with colrodp02:
-        st.image("logo_P_P.png", width=40)
-        # st.write("Implantação de Lojas Mercadologic")
-    with colrodp03:
-        st.write("---")
+    
+    sac.divider(label="STATUS",icon=sac.BsIcon(name='bi bi-database-fill-gear', size=30), align='center', color='indigo')
+    if numero_ip_alvo and numero_ip_destino and nome_banco_dados_alvo and nome_banco_dados_destino and nome_usuario_banco and senha_usuario_banco != "":
 
+        colsts01, colsts02, colsts03 = st.columns(3)
+        with colsts01:
+            sac.alert(label='Bancos Conectados', description=f"Matriz = {nome_banco_dados_alvo} </br> Filial = {nome_banco_dados_destino} ", radius='sm', color='info', banner=True, icon=True, closable=True)
+        with colsts02:
+            sac.alert(label='Hosts de Conexão', description=f"Matriz = {numero_ip_alvo} </br> Filial = {numero_ip_destino}", radius='sm', color='info', banner=True, icon=True, closable=True)
+        with colsts03:
+            sac.alert(label='Usuario Conectado', description=f"Usuario = {nome_usuario_banco}", radius='sm', color='warning', banner=True, icon=True, closable=True)
+        
+        
+    else:
+        st.html(f"<div style='text-align:center; background: red; color: white; font-size: 15px;'>CONFIGURE A CONEXÃO DE DADOS ANTES DE INICIAR</div>")
+    
+
+        
 
 ##########################################################################################
 # METODOS DE VERIFICAÇÃO DE LOGIN
